@@ -28,18 +28,18 @@ if (flutterVersionName == null) {
 apply plugin: 'com.android.application'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
-def keystoreProperties = new Properties()
-def keystorePropertiesFile = rootProject.file('secrets/key.properties')
-if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
-}
-if (!keystoreProperties.containsKey('keyAlias')) {
-    // to simplify local development
-    keystoreProperties['keyAlias'] = 'local'
-    keystoreProperties['keyPassword'] = 'local'
-    keystoreProperties['storeFile'] = 'local'
-    keystoreProperties['storePassword'] = 'local'
-}
+//def keystoreProperties = new Properties()
+//def keystorePropertiesFile = rootProject.file('secrets/key.properties')
+//if (keystorePropertiesFile.exists()) {
+//    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+//}
+//if (!keystoreProperties.containsKey('keyAlias')) {
+//    // to simplify local development
+//    keystoreProperties['keyAlias'] = 'local'
+//    keystoreProperties['keyPassword'] = 'local'
+//    keystoreProperties['storeFile'] = 'local'
+//    keystoreProperties['storePassword'] = 'local'
+//}
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -72,10 +72,14 @@ android {
 
     signingConfigs {
         release {
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-            storeFile file(keystoreProperties['storeFile'])
-            storePassword keystoreProperties['storePassword']
+            def properties = new Properties()
+            def inputStream = project.rootProject.file('local.properties').newDataInputStream()
+            properties.load(inputStream)
+
+            storeFile file(properties.getProperty('storeFile'))
+            storePassword properties.getProperty('storePassword')
+            keyAlias properties.getProperty('keyAlias')
+            keyPassword properties.getProperty('keyPassword')
         }
     }
     buildTypes {
@@ -86,6 +90,7 @@ android {
             }
         }
         debug {
+            signingConfig signingConfigs.release
             ndk {
                 abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'
             }
@@ -97,6 +102,7 @@ android {
         jumboMode true
         javaMaxHeapSize "12g"
     }
+    ndkVersion "21.4.7075529"
 }
 
 flutter {

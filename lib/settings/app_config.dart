@@ -23,7 +23,7 @@ class AppConfig extends ChangeNotifier {
 
   int version = 0;
 
-  bool proMode = false;
+  bool proMode = true;
 
   var validateProMode = true;
 
